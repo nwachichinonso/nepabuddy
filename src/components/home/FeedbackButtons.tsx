@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { cn } from '@/lib/utils';
 import { Zap, ZapOff, Fuel, Battery } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { useFeedback } from '@/hooks/useFeedback';
 
 interface FeedbackOption {
-  id: string;
+  id: 'light_on' | 'light_off' | 'gen_mode' | 'inverter';
   label: string;
   icon: React.ReactNode;
   emoji: string;
@@ -13,21 +13,21 @@ interface FeedbackOption {
 
 const feedbackOptions: FeedbackOption[] = [
   {
-    id: 'light-on',
+    id: 'light_on',
     label: 'Light dey!',
     icon: <Zap className="w-5 h-5" />,
     emoji: '⚡',
     description: 'My side light dey',
   },
   {
-    id: 'light-off',
+    id: 'light_off',
     label: 'Light don go',
     icon: <ZapOff className="w-5 h-5" />,
     emoji: '🔌',
     description: 'Here sef light don go',
   },
   {
-    id: 'gen-mode',
+    id: 'gen_mode',
     label: 'Gen dey save me',
     icon: <Fuel className="w-5 h-5" />,
     emoji: '⛽',
@@ -42,26 +42,15 @@ const feedbackOptions: FeedbackOption[] = [
   },
 ];
 
-export const FeedbackButtons: React.FC = () => {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+interface FeedbackButtonsProps {
+  zoneId?: string;
+}
 
-  const handleFeedback = (option: FeedbackOption) => {
-    setSelectedId(option.id);
-    
-    const messages = {
-      'light-on': "Nice one! We don add your update. Na so we dey shine together! ⚡",
-      'light-off': "Noted o! We go update the squad. Hold body! 💪",
-      'gen-mode': "Gen gang! 💨 Fuel price no be beans sha... we dey with you!",
-      'inverter': "Smart choice! Battery backup gang 🔋 We see you!",
-    };
+export const FeedbackButtons: React.FC<FeedbackButtonsProps> = ({ zoneId }) => {
+  const { submitFeedback, submitting, lastSubmittedType } = useFeedback(zoneId);
 
-    toast({
-      title: `${option.emoji} Feedback received!`,
-      description: messages[option.id as keyof typeof messages],
-    });
-
-    // Reset after animation
-    setTimeout(() => setSelectedId(null), 2000);
+  const handleFeedback = async (option: FeedbackOption) => {
+    await submitFeedback(option.id);
   };
 
   return (
@@ -74,17 +63,19 @@ export const FeedbackButtons: React.FC = () => {
           <button
             key={option.id}
             onClick={() => handleFeedback(option)}
+            disabled={submitting}
             className={cn(
               'flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all duration-300',
               'hover:scale-[1.02] active:scale-95',
-              selectedId === option.id
+              'disabled:opacity-50 disabled:cursor-not-allowed',
+              lastSubmittedType === option.id
                 ? 'border-primary bg-primary/10 shadow-soft'
                 : 'border-border bg-card hover:border-primary/50'
             )}
           >
             <div className={cn(
               'w-10 h-10 rounded-xl flex items-center justify-center',
-              selectedId === option.id
+              lastSubmittedType === option.id
                 ? 'bg-primary text-primary-foreground'
                 : 'bg-muted text-muted-foreground'
             )}>

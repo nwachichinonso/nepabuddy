@@ -1,34 +1,59 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-
-interface Zone {
-  id: string;
-  name: string;
-  status: 'on' | 'off' | 'partial';
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
-const lagosZones: Zone[] = [
-  { id: 'ikeja', name: 'Ikeja', status: 'on', x: 30, y: 15, width: 25, height: 20 },
-  { id: 'lekki', name: 'Lekki', status: 'on', x: 55, y: 50, width: 35, height: 25 },
-  { id: 'vi', name: 'V.I.', status: 'partial', x: 35, y: 55, width: 20, height: 15 },
-  { id: 'surulere', name: 'Surulere', status: 'off', x: 15, y: 40, width: 20, height: 18 },
-  { id: 'yaba', name: 'Yaba', status: 'on', x: 25, y: 35, width: 18, height: 15 },
-  { id: 'mainland', name: 'Mainland', status: 'off', x: 5, y: 25, width: 25, height: 25 },
-  { id: 'ajah', name: 'Ajah', status: 'on', x: 75, y: 65, width: 20, height: 20 },
-  { id: 'ikoyi', name: 'Ikoyi', status: 'on', x: 40, y: 45, width: 18, height: 12 },
-];
+import { usePowerStatus, ZonePowerStatus } from '@/hooks/usePowerStatus';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const statusColors = {
   on: { bg: 'fill-success/30', stroke: 'stroke-success', dot: 'bg-success' },
   off: { bg: 'fill-danger/30', stroke: 'stroke-danger', dot: 'bg-danger' },
-  partial: { bg: 'fill-warning/30', stroke: 'stroke-warning', dot: 'bg-warning' },
+  recovering: { bg: 'fill-warning/30', stroke: 'stroke-warning', dot: 'bg-warning' },
+  unknown: { bg: 'fill-muted/30', stroke: 'stroke-muted-foreground', dot: 'bg-muted-foreground' },
 };
 
-export const MiniMap: React.FC = () => {
+// Lagos zone positions for the mini map (approximate relative positions)
+const zonePositions: Record<string, { x: number; y: number; width: number; height: number }> = {
+  ikeja: { x: 30, y: 12, width: 18, height: 15 },
+  ikeja_phase1: { x: 25, y: 28, width: 16, height: 12 },
+  lekki_phase1: { x: 60, y: 50, width: 18, height: 15 },
+  lekki_phase2: { x: 75, y: 58, width: 16, height: 14 },
+  victoria_island: { x: 38, y: 58, width: 18, height: 12 },
+  surulere: { x: 18, y: 42, width: 16, height: 14 },
+  yaba: { x: 28, y: 38, width: 14, height: 12 },
+  mainland: { x: 8, y: 28, width: 18, height: 18 },
+  ajah: { x: 78, y: 70, width: 16, height: 15 },
+  ikoyi: { x: 45, y: 48, width: 14, height: 10 },
+  festac: { x: 5, y: 48, width: 15, height: 14 },
+  oshodi: { x: 35, y: 25, width: 14, height: 12 },
+  agege: { x: 25, y: 5, width: 16, height: 12 },
+  apapa: { x: 15, y: 55, width: 14, height: 12 },
+  magodo: { x: 48, y: 15, width: 15, height: 12 },
+};
+
+interface MiniMapProps {
+  onZoneClick?: (zoneId: string) => void;
+  highlightedZoneId?: string;
+}
+
+export const MiniMap: React.FC<MiniMapProps> = ({ onZoneClick, highlightedZoneId }) => {
+  const { allZonesStatus, loading } = usePowerStatus();
+
+  if (loading) {
+    return (
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-4 w-24" />
+        </div>
+        <Skeleton className="h-40 w-full rounded-2xl" />
+      </div>
+    );
+  }
+
+  const getZoneStatus = (zoneName: string): ZonePowerStatus['status'] => {
+    const zone = allZonesStatus.find(z => z.zones?.name === zoneName);
+    return zone?.status || 'unknown';
+  };
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
@@ -46,7 +71,7 @@ export const MiniMap: React.FC = () => {
           </div>
           <div className="flex items-center gap-1">
             <div className="w-2 h-2 rounded-full bg-warning" />
-            <span className="text-muted-foreground">Partial</span>
+            <span className="text-muted-foreground">Recovering</span>
           </div>
         </div>
       </div>
@@ -64,41 +89,68 @@ export const MiniMap: React.FC = () => {
         
         <svg
           viewBox="0 0 100 100"
-          className="w-full h-32 relative z-10"
+          className="w-full h-40 relative z-10"
           preserveAspectRatio="xMidYMid meet"
         >
           {/* Water/Lagos Lagoon */}
-          <ellipse cx="45" cy="70" rx="40" ry="15" className="fill-blue-200/30 dark:fill-blue-900/30" />
+          <ellipse cx="50" cy="75" rx="45" ry="12" className="fill-blue-200/30 dark:fill-blue-900/30" />
           
           {/* Zones */}
-          {lagosZones.map((zone) => {
-            const colors = statusColors[zone.status];
+          {Object.entries(zonePositions).map(([zoneName, pos]) => {
+            const status = getZoneStatus(zoneName);
+            const colors = statusColors[status];
+            const zoneData = allZonesStatus.find(z => z.zones?.name === zoneName);
+            const isHighlighted = zoneData?.zone_id === highlightedZoneId;
+            
             return (
-              <g key={zone.id} className="cursor-pointer transition-all hover:opacity-80">
+              <g 
+                key={zoneName} 
+                className={cn(
+                  'cursor-pointer transition-all',
+                  onZoneClick ? 'hover:opacity-80' : ''
+                )}
+                onClick={() => zoneData && onZoneClick?.(zoneData.zone_id)}
+              >
                 <rect
-                  x={zone.x}
-                  y={zone.y}
-                  width={zone.width}
-                  height={zone.height}
-                  rx="3"
-                  className={cn(colors.bg, colors.stroke, 'stroke-2')}
+                  x={pos.x}
+                  y={pos.y}
+                  width={pos.width}
+                  height={pos.height}
+                  rx="2"
+                  className={cn(
+                    colors.bg, 
+                    colors.stroke, 
+                    'stroke-[1.5]',
+                    isHighlighted && 'stroke-[3] stroke-primary'
+                  )}
                 />
                 <text
-                  x={zone.x + zone.width / 2}
-                  y={zone.y + zone.height / 2 + 1}
+                  x={pos.x + pos.width / 2}
+                  y={pos.y + pos.height / 2 + 1}
                   textAnchor="middle"
-                  className="fill-foreground text-[4px] font-display font-medium"
+                  className="fill-foreground text-[3px] font-display font-medium pointer-events-none"
                 >
-                  {zone.name}
+                  {zoneData?.zones?.display_name?.split(' ')[0] || zoneName}
                 </text>
                 {/* Pulse for areas with power */}
-                {zone.status === 'on' && (
+                {status === 'on' && (
                   <circle
-                    cx={zone.x + zone.width / 2}
-                    cy={zone.y + 3}
+                    cx={pos.x + pos.width / 2}
+                    cy={pos.y + 2}
                     r="1.5"
                     className="fill-success animate-pulse"
                   />
+                )}
+                {/* Buddy count indicator */}
+                {zoneData && zoneData.buddy_count > 0 && (
+                  <text
+                    x={pos.x + pos.width - 2}
+                    y={pos.y + pos.height - 1}
+                    textAnchor="end"
+                    className="fill-muted-foreground text-[2px] font-display pointer-events-none"
+                  >
+                    {zoneData.buddy_count}
+                  </text>
                 )}
               </g>
             );

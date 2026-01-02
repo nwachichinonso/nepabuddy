@@ -1,7 +1,8 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import NepaBuddyMascot, { MascotMood } from '../mascot/NepaBuddyMascot';
-import { Zap, ZapOff, Clock, Users, MapPin } from 'lucide-react';
+import { Zap, ZapOff, Clock, Users, MapPin, Wifi, WifiOff } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export type PowerStatus = 'on' | 'off' | 'unknown' | 'recovering';
 
@@ -11,6 +12,8 @@ interface StatusCardProps {
   buddyCount: number;
   lastUpdate: string;
   confidence: 'low' | 'medium' | 'high';
+  loading?: boolean;
+  isOnline?: boolean;
 }
 
 const statusConfig = {
@@ -64,8 +67,28 @@ export const StatusCard: React.FC<StatusCardProps> = ({
   buddyCount,
   lastUpdate,
   confidence,
+  loading = false,
+  isOnline = true,
 }) => {
   const config = statusConfig[status];
+
+  if (loading) {
+    return (
+      <div className="card-nepa space-y-4">
+        <div className="flex flex-col items-center">
+          <Skeleton className="w-32 h-32 rounded-full" />
+          <Skeleton className="h-8 w-48 mt-4" />
+          <Skeleton className="h-6 w-32 mt-2" />
+        </div>
+        <Skeleton className="h-10 w-full rounded-full" />
+        <div className="flex justify-center gap-4">
+          <Skeleton className="h-4 w-20" />
+          <Skeleton className="h-4 w-20" />
+          <Skeleton className="h-4 w-20" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -76,6 +99,14 @@ export const StatusCard: React.FC<StatusCardProps> = ({
         'border-2'
       )}
     >
+      {/* Offline indicator */}
+      {!isOnline && (
+        <div className="absolute top-4 right-4 flex items-center gap-1 text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
+          <WifiOff className="w-3 h-3" />
+          Offline
+        </div>
+      )}
+      
       {/* Ankara pattern overlay */}
       <div className="absolute inset-0 ankara-pattern opacity-30 pointer-events-none" />
       
@@ -115,7 +146,7 @@ export const StatusCard: React.FC<StatusCardProps> = ({
         </div>
 
         {/* Stats row */}
-        <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
+        <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground flex-wrap">
           <div className="flex items-center gap-1.5">
             <Users className="w-4 h-4" />
             <span>{buddyCount} buddies</span>
@@ -125,7 +156,14 @@ export const StatusCard: React.FC<StatusCardProps> = ({
             <span>Confidence: {confidenceEmojis[confidence]}</span>
           </div>
           <span className="text-border">•</span>
-          <span>{lastUpdate}</span>
+          <div className="flex items-center gap-1.5">
+            {isOnline ? (
+              <Wifi className="w-3 h-3 text-success" />
+            ) : (
+              <WifiOff className="w-3 h-3" />
+            )}
+            <span>{lastUpdate}</span>
+          </div>
         </div>
       </div>
     </div>

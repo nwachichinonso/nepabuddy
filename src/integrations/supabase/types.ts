@@ -14,7 +14,254 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      device_reports: {
+        Row: {
+          device_hash: string
+          geohash: string | null
+          id: string
+          is_charging: boolean
+          reported_at: string
+          zone_id: string | null
+        }
+        Insert: {
+          device_hash: string
+          geohash?: string | null
+          id?: string
+          is_charging: boolean
+          reported_at?: string
+          zone_id?: string | null
+        }
+        Update: {
+          device_hash?: string
+          geohash?: string | null
+          id?: string
+          is_charging?: boolean
+          reported_at?: string
+          zone_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_reports_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fuel_prices: {
+        Row: {
+          avg_price: number | null
+          fuel_type: string
+          id: string
+          max_price: number
+          min_price: number
+          updated_at: string
+        }
+        Insert: {
+          avg_price?: number | null
+          fuel_type: string
+          id?: string
+          max_price: number
+          min_price: number
+          updated_at?: string
+        }
+        Update: {
+          avg_price?: number | null
+          fuel_type?: string
+          id?: string
+          max_price?: number
+          min_price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      official_notices: {
+        Row: {
+          affected_zones: string[] | null
+          content: string
+          created_at: string
+          id: string
+          is_active: boolean
+          notice_type: string
+          scheduled_end: string | null
+          scheduled_start: string | null
+          source: string
+          title: string
+        }
+        Insert: {
+          affected_zones?: string[] | null
+          content: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          notice_type?: string
+          scheduled_end?: string | null
+          scheduled_start?: string | null
+          source: string
+          title: string
+        }
+        Update: {
+          affected_zones?: string[] | null
+          content?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          notice_type?: string
+          scheduled_end?: string | null
+          scheduled_start?: string | null
+          source?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      outage_history: {
+        Row: {
+          buddy_count: number
+          created_at: string
+          duration_minutes: number | null
+          ended_at: string | null
+          funny_caption: string | null
+          id: string
+          started_at: string
+          zone_id: string
+        }
+        Insert: {
+          buddy_count?: number
+          created_at?: string
+          duration_minutes?: number | null
+          ended_at?: string | null
+          funny_caption?: string | null
+          id?: string
+          started_at: string
+          zone_id: string
+        }
+        Update: {
+          buddy_count?: number
+          created_at?: string
+          duration_minutes?: number | null
+          ended_at?: string | null
+          funny_caption?: string | null
+          id?: string
+          started_at?: string
+          zone_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outage_history_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_feedback: {
+        Row: {
+          device_hash: string | null
+          feedback_type: string
+          id: string
+          reported_at: string
+          zone_id: string | null
+        }
+        Insert: {
+          device_hash?: string | null
+          feedback_type: string
+          id?: string
+          reported_at?: string
+          zone_id?: string | null
+        }
+        Update: {
+          device_hash?: string | null
+          feedback_type?: string
+          id?: string
+          reported_at?: string
+          zone_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_feedback_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      zone_power_status: {
+        Row: {
+          buddy_count: number
+          confidence: string
+          id: string
+          last_change_at: string
+          plugged_count: number
+          status: string
+          unplugged_count: number
+          updated_at: string
+          zone_id: string
+        }
+        Insert: {
+          buddy_count?: number
+          confidence?: string
+          id?: string
+          last_change_at?: string
+          plugged_count?: number
+          status?: string
+          unplugged_count?: number
+          updated_at?: string
+          zone_id: string
+        }
+        Update: {
+          buddy_count?: number
+          confidence?: string
+          id?: string
+          last_change_at?: string
+          plugged_count?: number
+          status?: string
+          unplugged_count?: number
+          updated_at?: string
+          zone_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "zone_power_status_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: true
+            referencedRelation: "zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      zones: {
+        Row: {
+          created_at: string
+          display_name: string
+          geohash_prefix: string
+          id: string
+          latitude: number
+          longitude: number
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          display_name: string
+          geohash_prefix: string
+          id?: string
+          latitude: number
+          longitude: number
+          name: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          geohash_prefix?: string
+          id?: string
+          latitude?: number
+          longitude?: number
+          name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
