@@ -1,44 +1,42 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { Fuel, TrendingUp, TrendingDown, Minus, Droplet, Info } from 'lucide-react';
-
-interface FuelPrice {
-  type: 'petrol' | 'diesel';
-  price: number;
-  unit: string;
-  trend: 'up' | 'down' | 'stable';
-  change: string;
-  lastUpdate: string;
-}
-
-const fuelPrices: FuelPrice[] = [
-  {
-    type: 'petrol',
-    price: 780,
-    unit: '₦/L',
-    trend: 'stable',
-    change: '±₦0',
-    lastUpdate: 'Dec 31, 2025',
-  },
-  {
-    type: 'diesel',
-    price: 1050,
-    unit: '₦/L',
-    trend: 'up',
-    change: '+₦50',
-    lastUpdate: 'Dec 31, 2025',
-  },
-];
-
-const tips = [
-  "Diesel don cost! Make we save light small small when e dey 😅",
-  "Morning time na best time to run gen — fuel go last longer!",
-  "LED bulbs save am well well — consider changing if you never!",
-  "Inverter + solar combo dey work for plenty people now 🌞",
-];
+import { Fuel, TrendingUp, TrendingDown, Minus, Droplet, Info, Clock } from 'lucide-react';
+import { useFuelPrices } from '@/hooks/useFuelPrices';
+import { Skeleton } from '@/components/ui/skeleton';
+import { formatDistanceToNow } from 'date-fns';
 
 export const FuelPriceCard: React.FC = () => {
-  const randomTip = tips[Math.floor(Math.random() * tips.length)];
+  const { petrolPrice, dieselPrice, tip, loading } = useFuelPrices();
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-4 w-20" />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Skeleton className="h-32 rounded-2xl" />
+          <Skeleton className="h-32 rounded-2xl" />
+        </div>
+      </div>
+    );
+  }
+
+  const formatPrice = (price: { min_price: number; max_price: number; avg_price: number | null }) => {
+    if (price.min_price === price.max_price) {
+      return `₦${price.min_price}`;
+    }
+    return `₦${price.min_price} - ₦${price.max_price}`;
+  };
+
+  const getLastUpdated = (updatedAt: string) => {
+    try {
+      return formatDistanceToNow(new Date(updatedAt), { addSuffix: true });
+    } catch {
+      return 'Recently';
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -46,54 +44,73 @@ export const FuelPriceCard: React.FC = () => {
         <h3 className="font-display font-semibold text-sm text-muted-foreground uppercase tracking-wide">
           Fuel Watch ⛽
         </h3>
-        <span className="text-xs text-muted-foreground">Lagos prices</span>
+        <span className="text-xs text-muted-foreground flex items-center gap-1">
+          <Clock className="w-3 h-3" />
+          Lagos prices
+        </span>
       </div>
 
       {/* Price Cards */}
       <div className="grid grid-cols-2 gap-3">
-        {fuelPrices.map((fuel) => {
-          const TrendIcon = fuel.trend === 'up' 
-            ? TrendingUp 
-            : fuel.trend === 'down' 
-              ? TrendingDown 
-              : Minus;
+        {/* Petrol */}
+        <div className="card-nepa space-y-2">
+          <div className="flex items-center gap-2">
+            <Fuel className="w-4 h-4 text-accent" />
+            <span className="text-xs font-display font-medium text-muted-foreground uppercase">
+              Petrol (PMS)
+            </span>
+          </div>
           
-          const trendColor = fuel.trend === 'up' 
-            ? 'text-danger' 
-            : fuel.trend === 'down' 
-              ? 'text-success' 
-              : 'text-muted-foreground';
-
-          return (
-            <div
-              key={fuel.type}
-              className="card-nepa space-y-2"
-            >
-              <div className="flex items-center gap-2">
-                {fuel.type === 'petrol' ? (
-                  <Fuel className="w-4 h-4 text-accent" />
-                ) : (
-                  <Droplet className="w-4 h-4 text-nepa-indigo dark:text-muted-foreground" />
-                )}
-                <span className="text-xs font-display font-medium text-muted-foreground uppercase">
-                  {fuel.type}
-                </span>
-              </div>
-              
+          {petrolPrice ? (
+            <>
               <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-display font-bold text-foreground">
-                  ₦{fuel.price}
+                <span className="text-xl font-display font-bold text-foreground">
+                  {formatPrice(petrolPrice)}
                 </span>
                 <span className="text-xs text-muted-foreground">/L</span>
               </div>
-
-              <div className={cn('flex items-center gap-1 text-xs', trendColor)}>
-                <TrendIcon className="w-3 h-3" />
-                <span>{fuel.change}</span>
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Minus className="w-3 h-3" />
+                <span>Stable</span>
               </div>
-            </div>
-          );
-        })}
+              <p className="text-[10px] text-muted-foreground">
+                Updated {getLastUpdated(petrolPrice.updated_at)}
+              </p>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">No data</p>
+          )}
+        </div>
+
+        {/* Diesel */}
+        <div className="card-nepa space-y-2">
+          <div className="flex items-center gap-2">
+            <Droplet className="w-4 h-4 text-nepa-indigo dark:text-muted-foreground" />
+            <span className="text-xs font-display font-medium text-muted-foreground uppercase">
+              Diesel (AGO)
+            </span>
+          </div>
+          
+          {dieselPrice ? (
+            <>
+              <div className="flex items-baseline gap-1">
+                <span className="text-xl font-display font-bold text-foreground">
+                  {formatPrice(dieselPrice)}
+                </span>
+                <span className="text-xs text-muted-foreground">/L</span>
+              </div>
+              <div className="flex items-center gap-1 text-xs text-danger">
+                <TrendingUp className="w-3 h-3" />
+                <span>High</span>
+              </div>
+              <p className="text-[10px] text-muted-foreground">
+                Updated {getLastUpdated(dieselPrice.updated_at)}
+              </p>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">No data</p>
+          )}
+        </div>
       </div>
 
       {/* Tip */}
@@ -101,7 +118,7 @@ export const FuelPriceCard: React.FC = () => {
         <Info className="w-4 h-4 text-primary mt-0.5 shrink-0" />
         <p className="text-sm text-muted-foreground">
           <span className="font-semibold text-foreground">Gen Tip: </span>
-          {randomTip}
+          {tip}
         </p>
       </div>
     </div>

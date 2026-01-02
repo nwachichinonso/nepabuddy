@@ -1,47 +1,16 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { AlertTriangle, Info, Clock, ExternalLink } from 'lucide-react';
+import { AlertTriangle, Info, Clock, ExternalLink, Zap, CheckCircle } from 'lucide-react';
+import { useOfficialNotices, OfficialNotice } from '@/hooks/useOfficialNotices';
+import { Skeleton } from '@/components/ui/skeleton';
+import { formatDistanceToNow } from 'date-fns';
 
-interface Notice {
-  id: string;
-  type: 'maintenance' | 'info' | 'warning';
-  source: string;
-  title: string;
-  description: string;
-  datetime: string;
-  areas?: string[];
-}
-
-const notices: Notice[] = [
-  {
-    id: '1',
-    type: 'maintenance',
-    source: 'Excel (Eko Disco)',
-    title: 'Planned Maintenance Notice',
-    description: 'Routine maintenance work will affect power supply in Ikeja West injection substation areas.',
-    datetime: 'Jan 2, 2026 • 8:00 AM - 5:00 PM',
-    areas: ['Ikeja GRA', 'Oregun', 'Alausa'],
-  },
-  {
-    id: '2',
-    type: 'info',
-    source: 'TCN',
-    title: 'Grid Stability Update',
-    description: 'Vandalized transmission line between Oshogbo and Benin has been repaired. Full capacity restored.',
-    datetime: 'Dec 30, 2025',
-  },
-  {
-    id: '3',
-    type: 'warning',
-    source: 'IE Energy (Ikeja Electric)',
-    title: 'Load Shedding Notice',
-    description: 'Due to gas constraints, some areas may experience scheduled load shedding during peak hours.',
-    datetime: 'Ongoing',
-    areas: ['Lagos Mainland', 'Surulere', 'Yaba'],
-  },
-];
-
-const typeStyles = {
+const typeStyles: Record<OfficialNotice['notice_type'], {
+  bg: string;
+  border: string;
+  icon: React.ReactNode;
+  badge: string;
+}> = {
   maintenance: {
     bg: 'bg-warning/10',
     border: 'border-warning/20',
@@ -54,15 +23,55 @@ const typeStyles = {
     icon: <Info className="w-4 h-4 text-muted-foreground" />,
     badge: 'bg-muted text-muted-foreground',
   },
-  warning: {
+  grid_collapse: {
     bg: 'bg-danger/5',
     border: 'border-danger/20',
     icon: <AlertTriangle className="w-4 h-4 text-danger" />,
     badge: 'bg-danger/20 text-danger',
   },
+  restoration: {
+    bg: 'bg-success/5',
+    border: 'border-success/20',
+    icon: <CheckCircle className="w-4 h-4 text-success" />,
+    badge: 'bg-success/20 text-success',
+  },
 };
 
 export const OfficialNotices: React.FC = () => {
+  const { notices, loading } = useOfficialNotices();
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-4 w-16" />
+        </div>
+        <div className="space-y-3">
+          <Skeleton className="h-32 rounded-2xl" />
+          <Skeleton className="h-28 rounded-2xl" />
+        </div>
+      </div>
+    );
+  }
+
+  if (notices.length === 0) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="font-display font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+            Official Notices 📢
+          </h3>
+        </div>
+        <div className="card-nepa text-center py-8">
+          <Zap className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+          <p className="text-muted-foreground">No active notices</p>
+          <p className="text-sm text-muted-foreground">All systems dey normal! ⚡</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -76,8 +85,10 @@ export const OfficialNotices: React.FC = () => {
       </div>
 
       <div className="space-y-3">
-        {notices.map((notice) => {
-          const styles = typeStyles[notice.type];
+        {notices.slice(0, 3).map((notice) => {
+          const styles = typeStyles[notice.notice_type] || typeStyles.info;
+          const timeAgo = formatDistanceToNow(new Date(notice.created_at), { addSuffix: true });
+          
           return (
             <div
               key={notice.id}
@@ -107,18 +118,18 @@ export const OfficialNotices: React.FC = () => {
 
               {/* Description */}
               <p className="text-sm text-muted-foreground mb-2 leading-relaxed">
-                {notice.description}
+                {notice.content}
               </p>
 
               {/* Areas */}
-              {notice.areas && (
+              {notice.affected_zones && notice.affected_zones.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mb-2">
-                  {notice.areas.map((area) => (
+                  {notice.affected_zones.map((area) => (
                     <span
                       key={area}
-                      className="px-2 py-0.5 rounded-md bg-background/50 text-xs text-muted-foreground"
+                      className="px-2 py-0.5 rounded-md bg-background/50 text-xs text-muted-foreground capitalize"
                     >
-                      {area}
+                      {area.replace('_', ' ')}
                     </span>
                   ))}
                 </div>
@@ -126,7 +137,7 @@ export const OfficialNotices: React.FC = () => {
 
               {/* Datetime */}
               <p className="text-xs text-muted-foreground">
-                📅 {notice.datetime}
+                📅 {timeAgo}
               </p>
             </div>
           );

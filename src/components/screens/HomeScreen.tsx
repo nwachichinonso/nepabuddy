@@ -3,30 +3,51 @@ import StatusCard from '../home/StatusCard';
 import FeedbackButtons from '../home/FeedbackButtons';
 import MiniMap from '../home/MiniMap';
 import { PowerStatus } from '../home/StatusCard';
+import { usePowerStatus } from '@/hooks/usePowerStatus';
+import { useUserLocation } from '@/hooks/useUserLocation';
+import { usePWA } from '@/hooks/usePWA';
+import { useChargingStatus } from '@/hooks/useChargingStatus';
+import { formatDistanceToNow } from 'date-fns';
 
 interface HomeScreenProps {
   currentStatus?: PowerStatus;
 }
 
-export const HomeScreen: React.FC<HomeScreenProps> = ({ 
-  currentStatus = 'on' 
-}) => {
+export const HomeScreen: React.FC<HomeScreenProps> = () => {
+  const { userZone } = useUserLocation();
+  const { powerStatus, loading } = usePowerStatus(userZone?.id);
+  const { isOnline } = usePWA();
+  
+  // Enable charging status monitoring
+  useChargingStatus(userZone?.id, true);
+
+  const getLastUpdate = () => {
+    if (!powerStatus?.updated_at) return 'Just now';
+    try {
+      return formatDistanceToNow(new Date(powerStatus.updated_at), { addSuffix: true });
+    } catch {
+      return 'Just now';
+    }
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Main Status Card */}
       <StatusCard
-        status={currentStatus}
-        area="Lekki Phase 1"
-        buddyCount={127}
-        lastUpdate="1 min ago"
-        confidence="high"
+        status={powerStatus?.status || 'unknown'}
+        area={userZone?.displayName || powerStatus?.zones?.display_name || 'Lagos'}
+        buddyCount={powerStatus?.buddy_count || 0}
+        lastUpdate={getLastUpdate()}
+        confidence={powerStatus?.confidence || 'low'}
+        loading={loading}
+        isOnline={isOnline}
       />
 
       {/* Quick Feedback */}
-      <FeedbackButtons />
+      <FeedbackButtons zoneId={userZone?.id} />
 
       {/* Mini Map */}
-      <MiniMap />
+      <MiniMap highlightedZoneId={userZone?.id} />
 
       {/* Recent Alert Preview */}
       <div className="card-nepa space-y-3">
