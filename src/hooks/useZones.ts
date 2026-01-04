@@ -10,6 +10,26 @@ export interface Zone {
   longitude: number;
 }
 
+// Standalone utility function for finding nearest zone
+export const findNearestZone = (lat: number, lng: number, zones: Zone[]): Zone | null => {
+  if (zones.length === 0) return null;
+
+  let nearest: Zone | null = null;
+  let minDistance = Infinity;
+
+  zones.forEach(zone => {
+    const distance = Math.sqrt(
+      Math.pow(Number(zone.latitude) - lat, 2) + Math.pow(Number(zone.longitude) - lng, 2)
+    );
+    if (distance < minDistance) {
+      minDistance = distance;
+      nearest = zone;
+    }
+  });
+
+  return nearest;
+};
+
 export const useZones = () => {
   const [zones, setZones] = useState<Zone[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,30 +57,16 @@ export const useZones = () => {
     fetchZones();
   }, [fetchZones]);
 
-  const findNearestZone = useCallback((lat: number, lng: number): Zone | null => {
-    if (zones.length === 0) return null;
-
-    let nearest: Zone | null = null;
-    let minDistance = Infinity;
-
-    zones.forEach(zone => {
-      const distance = Math.sqrt(
-        Math.pow(zone.latitude - lat, 2) + Math.pow(zone.longitude - lng, 2)
-      );
-      if (distance < minDistance) {
-        minDistance = distance;
-        nearest = zone;
-      }
-    });
-
-    return nearest;
+  // Instance method that uses the hook's zones
+  const findNearest = useCallback((lat: number, lng: number): Zone | null => {
+    return findNearestZone(lat, lng, zones);
   }, [zones]);
 
   return {
     zones,
     loading,
     error,
-    findNearestZone,
+    findNearestZone: findNearest,
     refetch: fetchZones
   };
 };
