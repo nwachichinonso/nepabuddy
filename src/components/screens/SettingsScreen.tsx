@@ -12,43 +12,94 @@ import {
   Smartphone,
   MessageSquare,
   Share2,
-  Star
+  Star,
+  Trash2,
+  Search,
+  Loader2
 } from 'lucide-react';
 import NepaBuddyMascot from '../mascot/NepaBuddyMascot';
-
-interface SettingItem {
-  id: string;
-  icon: React.ReactNode;
-  label: string;
-  description?: string;
-  type: 'toggle' | 'select' | 'link';
-  value?: boolean | string;
-}
+import { GoogleMapsProvider } from '../map/GoogleMapsProvider';
+import { PlacesAutocomplete } from '../search/PlacesAutocomplete';
+import { useAppStore } from '@/store/useAppStore';
+import { useUserLocation } from '@/hooks/useUserLocation';
+import { useZones, findNearestZone } from '@/hooks/useZones';
+import { useToast } from '@/hooks/use-toast';
 
 export const SettingsScreen: React.FC = () => {
-  const [settings, setSettings] = useState({
-    monitoring: true,
-    notifications: true,
-    darkMode: false,
-    pidginMode: true,
-    batteryOptimization: true,
-  });
+  const { toast } = useToast();
+  const { userZone, setManualZone } = useUserLocation();
+  const { zones } = useZones();
+  const [showZoneSearch, setShowZoneSearch] = useState(false);
+  
+  const {
+    darkMode,
+    toggleDarkMode,
+    pidginMode,
+    setPidginMode,
+    monitoringEnabled,
+    setMonitoringEnabled,
+    notificationsEnabled,
+    setNotificationsEnabled,
+    clearDeviceData,
+    incrementMascotTaps,
+  } = useAppStore();
 
-  const toggleSetting = (key: keyof typeof settings) => {
-    setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
+  const handleZoneSelect = (place: { placeId: string; name: string; lat: number; lng: number }) => {
+    const nearestZone = findNearestZone(place.lat, place.lng, zones);
+    if (nearestZone) {
+      setManualZone(nearestZone.id);
+      setShowZoneSearch(false);
+      toast({
+        title: "Zone Updated! 📍",
+        description: `Now tracking ${nearestZone.display_name}`,
+      });
+    }
+  };
+
+  const handleClearData = () => {
+    clearDeviceData();
+    toast({
+      title: "Data Cleared! 🧹",
+      description: "Your local data don delete. Fresh start!",
+    });
+  };
+
+  const handleShare = async () => {
+    const shareData = {
+      title: 'NEPA Buddy - Lagos Power Tracker',
+      text: 'We dey watch NEPA/Disco together! Know when light go, know when e return. Join your squad! ⚡️🇳🇬',
+      url: 'https://nepabuddy.lovable.app',
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        // User cancelled or error
+      }
+    } else {
+      // Fallback - copy to clipboard
+      await navigator.clipboard.writeText(shareData.url);
+      toast({
+        title: "Link Copied! 📋",
+        description: "Share am with your squad!",
+      });
+    }
   };
 
   return (
     <div className="space-y-6 animate-fade-in pb-6">
       {/* Profile Card */}
       <div className="card-nepa flex items-center gap-4">
-        <NepaBuddyMascot mood="happy" size="md" showAccessory={false} />
-        <div className="flex-1">
+        <button onClick={incrementMascotTaps} className="shrink-0">
+          <NepaBuddyMascot mood="happy" size="md" showAccessory={false} />
+        </button>
+        <div className="flex-1 min-w-0">
           <h3 className="font-display font-bold text-lg text-foreground">
             NEPA Buddy User
           </h3>
-          <p className="text-sm text-muted-foreground">
-            Lekki Phase 1 • Free Plan
+          <p className="text-sm text-muted-foreground truncate">
+            {userZone?.displayName || 'Lagos'} • Free Plan
           </p>
           <button className="mt-2 text-xs text-primary font-display font-semibold">
             Upgrade to Premium →
@@ -64,15 +115,8 @@ export const SettingsScreen: React.FC = () => {
             icon={<Battery className="w-5 h-5" />}
             label="Power Monitoring"
             description="Track charging state in background"
-            checked={settings.monitoring}
-            onChange={() => toggleSetting('monitoring')}
-          />
-          <SettingToggle
-            icon={<Smartphone className="w-5 h-5" />}
-            label="Battery Optimization"
-            description="Ultra-low battery usage mode"
-            checked={settings.batteryOptimization}
-            onChange={() => toggleSetting('batteryOptimization')}
+            checked={monitoringEnabled}
+            onChange={() => setMonitoringEnabled(!monitoringEnabled)}
           />
         </SettingsSection>
 
@@ -82,25 +126,48 @@ export const SettingsScreen: React.FC = () => {
             icon={<Bell className="w-5 h-5" />}
             label="Push Notifications"
             description="Get alerts when power changes"
-            checked={settings.notifications}
-            onChange={() => toggleSetting('notifications')}
+            checked={notificationsEnabled}
+            onChange={() => setNotificationsEnabled(!notificationsEnabled)}
           />
           <SettingToggle
             icon={<MessageSquare className="w-5 h-5" />}
             label="Pidgin Mode"
             description="Full Naija-style notifications 😎"
-            checked={settings.pidginMode}
-            onChange={() => toggleSetting('pidginMode')}
+            checked={pidginMode}
+            onChange={() => setPidginMode(!pidginMode)}
           />
         </SettingsSection>
 
         {/* Location */}
         <SettingsSection title="Location">
-          <SettingLink
-            icon={<MapPin className="w-5 h-5" />}
-            label="Your Area"
-            value="Lekki Phase 1"
-          />
+          <button 
+            onClick={() => setShowZoneSearch(!showZoneSearch)}
+            className="flex items-center justify-between p-4 w-full hover:bg-muted/50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="text-muted-foreground"><MapPin className="w-5 h-5" /></div>
+              <div className="text-left">
+                <p className="font-display font-medium text-foreground">Your Area</p>
+                <p className="text-xs text-muted-foreground">Tap to search & change</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <span className="text-sm">{userZone?.displayName || 'Not set'}</span>
+              <ChevronRight className="w-4 h-4" />
+            </div>
+          </button>
+          
+          {showZoneSearch && (
+            <div className="px-4 pb-4">
+              <GoogleMapsProvider>
+                <PlacesAutocomplete
+                  onPlaceSelect={handleZoneSelect}
+                  placeholder="Search your area..."
+                />
+              </GoogleMapsProvider>
+            </div>
+          )}
+
           <SettingLink
             icon={<Globe className="w-5 h-5" />}
             label="Accuracy Level"
@@ -114,9 +181,25 @@ export const SettingsScreen: React.FC = () => {
             icon={<Moon className="w-5 h-5" />}
             label="Dark Mode"
             description="Easy on the eyes at night"
-            checked={settings.darkMode}
-            onChange={() => toggleSetting('darkMode')}
+            checked={darkMode}
+            onChange={toggleDarkMode}
           />
+        </SettingsSection>
+
+        {/* Data & Privacy */}
+        <SettingsSection title="Data & Privacy">
+          <button 
+            onClick={handleClearData}
+            className="flex items-center justify-between p-4 w-full hover:bg-danger/5 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="text-danger"><Trash2 className="w-5 h-5" /></div>
+              <div className="text-left">
+                <p className="font-display font-medium text-danger">Clear My Data</p>
+                <p className="text-xs text-muted-foreground">Delete local device ID & searches</p>
+              </div>
+            </div>
+          </button>
         </SettingsSection>
 
         {/* About */}
@@ -130,10 +213,16 @@ export const SettingsScreen: React.FC = () => {
             label="About NEPA Buddy"
             value="v1.0.0"
           />
-          <SettingLink
-            icon={<Share2 className="w-5 h-5" />}
-            label="Share with Friends"
-          />
+          <button 
+            onClick={handleShare}
+            className="flex items-center justify-between p-4 w-full hover:bg-muted/50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="text-muted-foreground"><Share2 className="w-5 h-5" /></div>
+              <p className="font-display font-medium text-foreground">Share with Friends</p>
+            </div>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          </button>
           <SettingLink
             icon={<Star className="w-5 h-5" />}
             label="Rate Us"
