@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 import { Search, Filter, Loader2, MapPin, Users } from 'lucide-react';
 import { GoogleMapsProvider } from '../map/GoogleMapsProvider';
 import { InteractiveMap } from '../map/InteractiveMap';
-import { PlacesAutocomplete } from '../search/PlacesAutocomplete';
+import { LocationSearch } from '../search/LocationSearch';
 import { usePowerStatus } from '@/hooks/usePowerStatus';
 import { useZones, findNearestZone } from '@/hooks/useZones';
 import { useAppStore } from '@/store/useAppStore';
@@ -105,9 +105,9 @@ export const MapScreen: React.FC = () => {
 
   return (
     <div className="space-y-4 animate-fade-in">
-      {/* Search Bar - Uber style */}
+      {/* Search Bar - Uber style with fallback */}
       <GoogleMapsProvider>
-        <PlacesAutocomplete
+        <LocationSearch
           onPlaceSelect={handlePlaceSelect}
           placeholder="Search your area in Lagos..."
           className="mb-4"

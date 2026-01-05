@@ -9,7 +9,7 @@ import { useChargingStatus } from '@/hooks/useChargingStatus';
 import { useZones, findNearestZone } from '@/hooks/useZones';
 import { useAppStore } from '@/store/useAppStore';
 import { GoogleMapsProvider } from '../map/GoogleMapsProvider';
-import { PlacesAutocomplete } from '../search/PlacesAutocomplete';
+import { LocationSearch } from '../search/LocationSearch';
 import { AdminPanel } from '../admin/AdminPanel';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -85,9 +85,9 @@ export const HomeScreen: React.FC = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Search Bar - Uber style */}
+      {/* Search Bar - Uber style with fallback */}
       <GoogleMapsProvider>
-        <PlacesAutocomplete
+        <LocationSearch
           onPlaceSelect={handlePlaceSelect}
           placeholder="Search your area in Lagos..."
         />
