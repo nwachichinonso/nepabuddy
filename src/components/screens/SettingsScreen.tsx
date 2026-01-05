@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import NepaBuddyMascot from '../mascot/NepaBuddyMascot';
 import { GoogleMapsProvider } from '../map/GoogleMapsProvider';
-import { PlacesAutocomplete } from '../search/PlacesAutocomplete';
+import { LocationSearch } from '../search/LocationSearch';
 import { useAppStore } from '@/store/useAppStore';
 import { useUserLocation } from '@/hooks/useUserLocation';
 import { useZones, findNearestZone } from '@/hooks/useZones';
@@ -160,7 +160,7 @@ export const SettingsScreen: React.FC = () => {
           {showZoneSearch && (
             <div className="px-4 pb-4">
               <GoogleMapsProvider>
-                <PlacesAutocomplete
+                <LocationSearch
                   onPlaceSelect={handleZoneSelect}
                   placeholder="Search your area..."
                 />
