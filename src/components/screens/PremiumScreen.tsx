@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import NepaBuddyMascot from '../mascot/NepaBuddyMascot';
 import NepaButton from '../ui/NepaButton';
-import { Check, Sparkles, Map, Clock, Fuel, TrendingUp, Heart, Crown } from 'lucide-react';
+import { Check, Sparkles, Map, Clock, Fuel, TrendingUp, Heart, Crown, Loader2 } from 'lucide-react';
+import { usePaystackPayment } from 'react-paystack';
+import { useToast } from '@/hooks/use-toast';
+import { useAppStore } from '@/store/useAppStore';
+import { supabase } from '@/integrations/supabase/client';
 
 const features = [
   {
@@ -41,6 +45,7 @@ interface PlanOption {
   id: string;
   name: string;
   price: string;
+  priceValue: number; // in kobo
   period: string;
   savings?: string;
   popular?: boolean;
@@ -50,21 +55,121 @@ const plans: PlanOption[] = [
   {
     id: 'monthly',
     name: 'Monthly',
-    price: '₦1,500',
+    price: '₦1,800',
+    priceValue: 180000, // 1800 NGN in kobo
     period: '/month',
   },
   {
     id: 'yearly',
     name: 'Yearly',
-    price: '₦12,000',
+    price: '₦14,000',
+    priceValue: 1400000, // 14000 NGN in kobo
     period: '/year',
-    savings: 'Save ₦6,000 + 1 month free!',
+    savings: 'Save ₦7,600 (35% off)!',
     popular: true,
   },
 ];
 
+interface PaystackConfig {
+  reference: string;
+  email: string;
+  amount: number;
+  publicKey: string;
+}
+
+const PaystackButton: React.FC<{
+  plan: PlanOption;
+  deviceHash: string;
+  onSuccess: () => void;
+}> = ({ plan, deviceHash, onSuccess }) => {
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+  
+  const publicKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || '';
+  
+  const config: PaystackConfig = {
+    reference: `nepa-${plan.id}-${Date.now()}`,
+    email: `${deviceHash}@nepabuddy.app`,
+    amount: plan.priceValue,
+    publicKey,
+  };
+  
+  const onPaystackSuccess = () => {
+    setLoading(false);
+    onSuccess();
+    toast({
+      title: "EHEN!!! Payment successful! 🎉",
+      description: "Welcome to Premium, buddy! You don upgrade!",
+    });
+  };
+
+  const onPaystackClose = () => {
+    setLoading(false);
+    toast({
+      title: "Payment cancelled",
+      description: "No wahala, try again when you ready!",
+      variant: "destructive",
+    });
+  };
+
+  const initializePayment = usePaystackPayment(config);
+  
+  const handleClick = () => {
+    if (!publicKey) {
+      toast({
+        title: "Payment not available",
+        description: "Paystack integration dey configure. Try again later!",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setLoading(true);
+    initializePayment({ onSuccess: onPaystackSuccess, onClose: onPaystackClose });
+  };
+
+  return (
+    <NepaButton 
+      className="w-full" 
+      size="lg" 
+      onClick={handleClick}
+      disabled={loading}
+    >
+      {loading ? (
+        <>
+          <Loader2 className="w-5 h-5 animate-spin" />
+          Processing...
+        </>
+      ) : (
+        <>
+          <Crown className="w-5 h-5" />
+          Subscribe Now — {plan.price}
+        </>
+      )}
+    </NepaButton>
+  );
+};
+
 export const PremiumScreen: React.FC = () => {
   const [selectedPlan, setSelectedPlan] = useState<string>('yearly');
+  const { deviceHash } = useAppStore();
+  const { toast } = useToast();
+  
+  // Get device hash for payment tracking
+  const currentDeviceHash = deviceHash || 'anonymous';
+  const selectedPlanData = plans.find(p => p.id === selectedPlan) || plans[1];
+  
+  const handlePaymentSuccess = async () => {
+    try {
+      // Record premium upgrade in Supabase
+      await supabase.from('user_feedback').insert({
+        device_hash: currentDeviceHash,
+        feedback_type: `premium_${selectedPlan}`,
+      });
+    } catch (error) {
+      console.error('Failed to record premium status:', error);
+    }
+  };
 
   return (
     <div className="space-y-6 animate-fade-in pb-6">
@@ -173,14 +278,15 @@ export const PremiumScreen: React.FC = () => {
         </div>
       </div>
 
-      {/* CTA Button */}
+      {/* CTA Button - Real Paystack */}
       <div className="space-y-3">
-        <NepaButton className="w-full" size="lg">
-          <Crown className="w-5 h-5" />
-          Subscribe Now
-        </NepaButton>
+        <PaystackButton 
+          plan={selectedPlanData}
+          deviceHash={currentDeviceHash}
+          onSuccess={handlePaymentSuccess}
+        />
         <p className="text-center text-xs text-muted-foreground">
-          Cancel anytime • 7-day free trial • Secure payment
+          Cancel anytime • Secure payment via Paystack 🔒
         </p>
       </div>
 
