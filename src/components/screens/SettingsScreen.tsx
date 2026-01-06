@@ -24,12 +24,15 @@ import { useAppStore } from '@/store/useAppStore';
 import { useUserLocation } from '@/hooks/useUserLocation';
 import { useZones, findNearestZone } from '@/hooks/useZones';
 import { useToast } from '@/hooks/use-toast';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 export const SettingsScreen: React.FC = () => {
   const { toast } = useToast();
   const { userZone, setManualZone } = useUserLocation();
   const { zones } = useZones();
   const [showZoneSearch, setShowZoneSearch] = useState(false);
+  
+  const { isSupported, isSubscribed, isLoading, subscribe, unsubscribe } = usePushNotifications(userZone?.id);
   
   const {
     darkMode,
@@ -124,10 +127,17 @@ export const SettingsScreen: React.FC = () => {
         <SettingsSection title="Notifications">
           <SettingToggle
             icon={<Bell className="w-5 h-5" />}
-            label="Push Notifications"
-            description="Get alerts when power changes"
-            checked={notificationsEnabled}
-            onChange={() => setNotificationsEnabled(!notificationsEnabled)}
+            label={isLoading ? "Connecting..." : "Push Notifications"}
+            description={isSupported ? (isSubscribed ? "You dey receive alerts ✓" : "Get alerts when power changes") : "Not supported on this device"}
+            checked={isSubscribed}
+            onChange={async () => {
+              if (isSubscribed) {
+                await unsubscribe();
+              } else {
+                await subscribe();
+              }
+            }}
+            disabled={!isSupported || isLoading}
           />
           <SettingToggle
             icon={<MessageSquare className="w-5 h-5" />}
@@ -265,6 +275,7 @@ interface SettingToggleProps {
   description?: string;
   checked: boolean;
   onChange: () => void;
+  disabled?: boolean;
 }
 
 const SettingToggle: React.FC<SettingToggleProps> = ({
@@ -273,8 +284,9 @@ const SettingToggle: React.FC<SettingToggleProps> = ({
   description,
   checked,
   onChange,
+  disabled = false,
 }) => (
-  <div className="flex items-center justify-between p-4">
+  <div className={cn("flex items-center justify-between p-4", disabled && "opacity-50")}>
     <div className="flex items-center gap-3">
       <div className="text-muted-foreground">{icon}</div>
       <div>
@@ -286,9 +298,11 @@ const SettingToggle: React.FC<SettingToggleProps> = ({
     </div>
     <button
       onClick={onChange}
+      disabled={disabled}
       className={cn(
         'relative w-12 h-7 rounded-full transition-colors',
-        checked ? 'bg-primary' : 'bg-muted'
+        checked ? 'bg-primary' : 'bg-muted',
+        disabled && 'cursor-not-allowed'
       )}
     >
       <div

@@ -156,6 +156,47 @@ export type Database = {
           },
         ]
       }
+      push_subscriptions: {
+        Row: {
+          auth_key: string
+          created_at: string
+          device_hash: string
+          endpoint: string
+          id: string
+          p256dh_key: string
+          updated_at: string
+          zone_id: string | null
+        }
+        Insert: {
+          auth_key: string
+          created_at?: string
+          device_hash: string
+          endpoint: string
+          id?: string
+          p256dh_key: string
+          updated_at?: string
+          zone_id?: string | null
+        }
+        Update: {
+          auth_key?: string
+          created_at?: string
+          device_hash?: string
+          endpoint?: string
+          id?: string
+          p256dh_key?: string
+          updated_at?: string
+          zone_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_subscriptions_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_feedback: {
         Row: {
           device_hash: string | null
