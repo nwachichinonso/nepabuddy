@@ -1,9 +1,10 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { GoogleMap, Marker, Circle, InfoWindow } from '@react-google-maps/api';
 import { ZoomIn, ZoomOut, Locate, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePowerStatus } from '@/hooks/usePowerStatus';
 import { useZones } from '@/hooks/useZones';
+import { FallbackMap } from './FallbackMap';
 
 interface InteractiveMapProps {
   center?: { lat: number; lng: number };
@@ -33,6 +34,11 @@ const mapContainerStyle = {
 
 const LAGOS_CENTER = { lat: 6.5244, lng: 3.3792 };
 
+// Check if Google Maps is available
+const isGoogleMapsAvailable = () => {
+  return typeof google !== 'undefined' && typeof google.maps !== 'undefined';
+};
+
 export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   center = LAGOS_CENTER,
   selectedZoneId,
@@ -42,12 +48,27 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [selectedMarker, setSelectedMarker] = useState<string | null>(null);
   const [isLocating, setIsLocating] = useState(false);
+  const [mapsAvailable, setMapsAvailable] = useState(false);
   
   const { zones } = useZones();
   const { allZonesStatus } = usePowerStatus();
+
+  // Check if Google Maps loaded
+  useEffect(() => {
+    const checkMaps = () => {
+      if (isGoogleMapsAvailable()) {
+        setMapsAvailable(true);
+      }
+    };
+    checkMaps();
+    // Also check after a short delay in case it's still loading
+    const timer = setTimeout(checkMaps, 1000);
+    return () => clearTimeout(timer);
+  }, []);
   
   const onLoad = useCallback((map: google.maps.Map) => {
     setMap(map);
+    setMapsAvailable(true);
   }, []);
 
   const onUnmount = useCallback(() => {
@@ -121,6 +142,17 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       lastUpdate: status?.updated_at,
     };
   });
+
+  // If Google Maps is not available, show fallback
+  if (!mapsAvailable) {
+    return (
+      <FallbackMap
+        selectedZoneId={selectedZoneId}
+        onZoneSelect={onZoneSelect}
+        className={className}
+      />
+    );
+  }
 
   return (
     <div className={cn("relative", className)}>
