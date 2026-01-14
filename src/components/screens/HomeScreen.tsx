@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import StatusCard from '../home/StatusCard';
 import FeedbackButtons from '../home/FeedbackButtons';
 import MiniMap from '../home/MiniMap';
+import { SignalIndicator } from '../home/SignalIndicator';
 import { usePowerStatus } from '@/hooks/usePowerStatus';
 import { useUserLocation } from '@/hooks/useUserLocation';
 import { usePWA } from '@/hooks/usePWA';
@@ -143,6 +144,9 @@ export const HomeScreen: React.FC = () => {
 
       {/* Quick Feedback */}
       <FeedbackButtons zoneId={userZone?.id} />
+
+      {/* Network Signal & Grid Status */}
+      <SignalIndicator />
 
       {/* Mini Map */}
       <MiniMap highlightedZoneId={userZone?.id} />
