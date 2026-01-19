@@ -4,6 +4,7 @@ import FeedbackButtons from '../home/FeedbackButtons';
 import MiniMap from '../home/MiniMap';
 import { SignalIndicator } from '../home/SignalIndicator';
 import { AddressPowerCheck } from '../home/AddressPowerCheck';
+import { PowerIssueReportForm } from '../reports/PowerIssueReportForm';
 import { usePowerStatus } from '@/hooks/usePowerStatus';
 import { useUserLocation } from '@/hooks/useUserLocation';
 import { usePWA } from '@/hooks/usePWA';
@@ -145,6 +146,9 @@ export const HomeScreen: React.FC = () => {
 
       {/* Quick Feedback */}
       <FeedbackButtons zoneId={userZone?.id} />
+
+      {/* Power Issue Report Form */}
+      <PowerIssueReportForm selectedZoneId={userZone?.id} />
 
       {/* Address Power Check - Check power at any location */}
       <AddressPowerCheck />

@@ -156,6 +156,53 @@ export type Database = {
           },
         ]
       }
+      power_issue_reports: {
+        Row: {
+          additional_notes: string | null
+          created_at: string
+          device_hash: string | null
+          id: string
+          location_description: string
+          power_available: boolean
+          problem_types: string[]
+          reported_at: string
+          status: string
+          zone_id: string | null
+        }
+        Insert: {
+          additional_notes?: string | null
+          created_at?: string
+          device_hash?: string | null
+          id?: string
+          location_description: string
+          power_available?: boolean
+          problem_types: string[]
+          reported_at?: string
+          status?: string
+          zone_id?: string | null
+        }
+        Update: {
+          additional_notes?: string | null
+          created_at?: string
+          device_hash?: string | null
+          id?: string
+          location_description?: string
+          power_available?: boolean
+          problem_types?: string[]
+          reported_at?: string
+          status?: string
+          zone_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "power_issue_reports_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       push_subscriptions: {
         Row: {
           auth_key: string

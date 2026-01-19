@@ -6,12 +6,14 @@ import {
   RefreshCw, 
   X,
   AlertTriangle,
-  Loader2
+  Loader2,
+  FileText
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useZones } from '@/hooks/useZones';
 import { useAppStore } from '@/store/useAppStore';
 import { useToast } from '@/hooks/use-toast';
+import { ReportsExportPanel } from '@/components/reports/ReportsExportPanel';
 
 interface AdminPanelProps {
   isOpen: boolean;
@@ -21,6 +23,7 @@ interface AdminPanelProps {
 export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
   const [loading, setLoading] = useState<string | null>(null);
   const [selectedZone, setSelectedZone] = useState<string>('');
+  const [showReports, setShowReports] = useState(false);
   const { zones } = useZones();
   const { setAdminMode } = useAppStore();
   const { toast } = useToast();
@@ -184,10 +187,26 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
           </div>
         </div>
 
+        {/* Reports Section Toggle */}
+        <button
+          onClick={() => setShowReports(!showReports)}
+          className="w-full mt-4 py-3 bg-primary/10 text-primary rounded-xl font-display font-medium hover:bg-primary/20 transition-colors flex items-center justify-center gap-2"
+        >
+          <FileText className="w-4 h-4" />
+          {showReports ? 'Hide Reports' : 'View Power Issue Reports'}
+        </button>
+
+        {/* Reports Export Panel */}
+        {showReports && (
+          <div className="mt-4 max-h-[300px] overflow-y-auto">
+            <ReportsExportPanel />
+          </div>
+        )}
+
         {/* Exit Button */}
         <button
           onClick={exitAdminMode}
-          className="w-full mt-6 py-3 bg-muted text-muted-foreground rounded-xl font-display font-medium hover:bg-muted/80 transition-colors"
+          className="w-full mt-4 py-3 bg-muted text-muted-foreground rounded-xl font-display font-medium hover:bg-muted/80 transition-colors"
         >
           Exit Admin Mode
         </button>
