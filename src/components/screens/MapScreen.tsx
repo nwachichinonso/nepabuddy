@@ -4,6 +4,7 @@ import { Search, Filter, Loader2, MapPin, Users } from 'lucide-react';
 import { GoogleMapsProvider } from '../map/GoogleMapsProvider';
 import { InteractiveMap } from '../map/InteractiveMap';
 import { LocationSearch } from '../search/LocationSearch';
+import { ZoneSubmissionForm } from '../zones/ZoneSubmissionForm';
 import { usePowerStatus } from '@/hooks/usePowerStatus';
 import { useZones, findNearestZone } from '@/hooks/useZones';
 import { useAppStore } from '@/store/useAppStore';
@@ -28,7 +29,7 @@ export const MapScreen: React.FC = () => {
     confidence?: string;
   } | null>(null);
 
-  const { zones, loading: zonesLoading } = useZones();
+  const { zones, loading: zonesLoading, refetch: refetchZones } = useZones();
   const { allZonesStatus, loading: statusLoading } = usePowerStatus();
   const { addRecentSearch } = useAppStore();
 
@@ -187,11 +188,14 @@ export const MapScreen: React.FC = () => {
         </div>
       </GoogleMapsProvider>
 
-      {/* Zone List */}
+      {/* Zone List Header with Add Button */}
       <div className="space-y-3">
-        <h3 className="font-display font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-          {isLoading ? 'Loading...' : `${filteredZones.length} Areas`}
-        </h3>
+        <div className="flex items-center justify-between">
+          <h3 className="font-display font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+            {isLoading ? 'Loading...' : `${filteredZones.length} Areas`}
+          </h3>
+          <ZoneSubmissionForm onSuccess={refetchZones} />
+        </div>
         
         {isLoading ? (
           <div className="flex justify-center py-8">

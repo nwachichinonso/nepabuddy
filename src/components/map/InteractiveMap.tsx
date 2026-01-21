@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { GoogleMap, Marker, Circle, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
 import { ZoomIn, ZoomOut, Locate, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePowerStatus } from '@/hooks/usePowerStatus';
@@ -172,28 +172,10 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           gestureHandling: 'greedy',
         }}
       >
-        {/* Zone circles and markers */}
+        {/* Zone pin markers */}
         {zonesWithStatus.map((zone) => (
           <React.Fragment key={zone.id}>
-            {/* Coverage circle */}
-            <Circle
-              center={{ lat: Number(zone.latitude), lng: Number(zone.longitude) }}
-              radius={1500} // 1.5km radius
-              options={{
-                fillColor: getStatusColor(zone.powerStatus),
-                fillOpacity: getStatusOpacity(zone.confidence),
-                strokeColor: getStatusColor(zone.powerStatus),
-                strokeOpacity: 0.8,
-                strokeWeight: 2,
-                clickable: true,
-              }}
-              onClick={() => {
-                setSelectedMarker(zone.id);
-                onZoneSelect?.(zone.id);
-              }}
-            />
-            
-            {/* Zone marker */}
+            {/* Pin marker with status color */}
             <Marker
               position={{ lat: Number(zone.latitude), lng: Number(zone.longitude) }}
               onClick={() => {
@@ -201,13 +183,15 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                 onZoneSelect?.(zone.id);
               }}
               icon={{
-                path: google.maps.SymbolPath.CIRCLE,
-                scale: 10,
+                path: 'M12 0C7.31 0 3.5 3.81 3.5 8.5C3.5 14.88 12 24 12 24S20.5 14.88 20.5 8.5C20.5 3.81 16.69 0 12 0ZM12 11.5C10.34 11.5 9 10.16 9 8.5C9 6.84 10.34 5.5 12 5.5C13.66 5.5 15 6.84 15 8.5C15 10.16 13.66 11.5 12 11.5Z',
                 fillColor: getStatusColor(zone.powerStatus),
                 fillOpacity: 1,
                 strokeColor: '#FFFFFF',
-                strokeWeight: 2,
+                strokeWeight: 1.5,
+                scale: 1.5,
+                anchor: new google.maps.Point(12, 24),
               }}
+              title={`${zone.display_name} - ${zone.powerStatus}`}
             />
 
             {/* Info window */}

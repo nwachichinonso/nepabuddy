@@ -1,1 +1,4 @@
 project_id = "dtygrokaotqjdwrfvxnd"
+
+[functions.import-osm-zones]
+verify_jwt = false
