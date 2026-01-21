@@ -7,7 +7,9 @@ import {
   X,
   AlertTriangle,
   Loader2,
-  FileText
+  FileText,
+  Globe,
+  MapPin
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useZones } from '@/hooks/useZones';
@@ -24,7 +26,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
   const [loading, setLoading] = useState<string | null>(null);
   const [selectedZone, setSelectedZone] = useState<string>('');
   const [showReports, setShowReports] = useState(false);
-  const { zones } = useZones();
+  const [osmImporting, setOsmImporting] = useState(false);
+  const { zones, refetch: refetchZones } = useZones();
   const { setAdminMode } = useAppStore();
   const { toast } = useToast();
 
@@ -68,6 +71,34 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
       });
     } finally {
       setLoading(null);
+    }
+  };
+
+  const importOsmZones = async () => {
+    setOsmImporting(true);
+    try {
+      const response = await supabase.functions.invoke('import-osm-zones');
+      
+      if (response.error) throw response.error;
+      
+      const data = response.data;
+      
+      toast({
+        title: "OSM Import Complete! 🗺️",
+        description: `Imported ${data.imported || 0} new zones from OpenStreetMap`,
+      });
+      
+      // Refresh zones list
+      refetchZones();
+    } catch (err) {
+      console.error('OSM import error:', err);
+      toast({
+        title: "Import Failed",
+        description: "Could not import zones from OpenStreetMap",
+        variant: "destructive",
+      });
+    } finally {
+      setOsmImporting(false);
     }
   };
 
@@ -185,6 +216,33 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
               </span>
             </button>
           </div>
+        </div>
+
+        {/* OSM Import Button */}
+        <div className="mt-4 space-y-3">
+          <p className="text-sm font-display font-medium text-muted-foreground">
+            Zone Data Management:
+          </p>
+          <button
+            onClick={importOsmZones}
+            disabled={osmImporting}
+            className="w-full py-3 bg-muted text-foreground rounded-xl font-display font-medium hover:bg-muted/80 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {osmImporting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Importing from OpenStreetMap...
+              </>
+            ) : (
+              <>
+                <Globe className="w-4 h-4" />
+                Import Zones from OpenStreetMap
+              </>
+            )}
+          </button>
+          <p className="text-xs text-muted-foreground text-center">
+            {zones.length} zones in database
+          </p>
         </div>
 
         {/* Reports Section Toggle */}
