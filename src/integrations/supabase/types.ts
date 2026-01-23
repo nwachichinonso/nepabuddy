@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      complaints: {
+        Row: {
+          complaint_text: string
+          created_at: string
+          id: string
+          location_id: string | null
+          location_string: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          complaint_text: string
+          created_at?: string
+          id?: string
+          location_id?: string | null
+          location_string: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          complaint_text?: string
+          created_at?: string
+          id?: string
+          location_id?: string | null
+          location_string?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "complaints_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       device_reports: {
         Row: {
           device_hash: string
@@ -73,6 +111,77 @@ export type Database = {
           max_price?: number
           min_price?: number
           updated_at?: string
+        }
+        Relationships: []
+      }
+      indications: {
+        Row: {
+          created_at: string
+          id: string
+          location_id: string | null
+          location_string: string
+          status: boolean
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          location_id?: string | null
+          location_string: string
+          status: boolean
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          location_id?: string | null
+          location_string?: string
+          status?: boolean
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "indications_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      locations: {
+        Row: {
+          confidence: number | null
+          created_at: string
+          id: string
+          last_updated: string
+          location_string: string
+          normalized_string: string
+          off_count: number
+          on_count: number
+          total_reports: number
+        }
+        Insert: {
+          confidence?: number | null
+          created_at?: string
+          id?: string
+          last_updated?: string
+          location_string: string
+          normalized_string: string
+          off_count?: number
+          on_count?: number
+          total_reports?: number
+        }
+        Update: {
+          confidence?: number | null
+          created_at?: string
+          id?: string
+          last_updated?: string
+          location_string?: string
+          normalized_string?: string
+          off_count?: number
+          on_count?: number
+          total_reports?: number
         }
         Relationships: []
       }
@@ -202,6 +311,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          daily_indication_count: number
+          default_location: string | null
+          display_name: string | null
+          email: string | null
+          id: string
+          last_indication_date: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          daily_indication_count?: number
+          default_location?: string | null
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          last_indication_date?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          daily_indication_count?: number
+          default_location?: string | null
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          last_indication_date?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       push_subscriptions: {
         Row: {
@@ -364,7 +509,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      normalize_location: { Args: { loc: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never
