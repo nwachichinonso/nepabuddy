@@ -68,7 +68,7 @@ export const Dashboard: React.FC = () => {
             <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
               <Zap className="w-4 h-4 text-primary" />
             </div>
-            <span className="font-bold text-lg">NEPA Buddy</span>
+            <span className="font-bold text-lg">NEPA Buddy 💡</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="text-right mr-2">
@@ -92,20 +92,20 @@ export const Dashboard: React.FC = () => {
         {/* Welcome Message */}
         <div className="text-center">
           <h1 className="text-2xl font-bold">
-            {todayCount === 0 ? 'Good day!' : todayCount >= DAILY_LIMIT ? 'Well done! 🎉' : 'Keep going!'}
+            {todayCount === 0 ? 'Good morning! ☀️' : todayCount >= DAILY_LIMIT ? 'Omo, you try! 🎉🏆' : 'Continue the hustle! 💪'}
           </h1>
           <p className="text-muted-foreground">
             {todayCount === 0 
-              ? 'Start your daily power status indications' 
+              ? 'Abeg start your daily power status indications 🔌' 
               : todayCount >= DAILY_LIMIT 
-              ? 'You don finish your daily task. Come back tomorrow!' 
-              : `${remaining} more indication${remaining !== 1 ? 's' : ''} to unlock complaints`}
+              ? 'You don finish your daily task! Come back tomorrow, champion! 🌟' 
+              : `${remaining} more indication${remaining !== 1 ? 's' : ''} remain before you fit complain ⚡`}
           </p>
         </div>
 
         {/* Location Input */}
         <div className="space-y-2">
-          <label className="text-sm font-medium">Your Location</label>
+          <label className="text-sm font-medium">Your Location 📍</label>
           <LocationInput
             value={location}
             onChange={setLocation}
@@ -138,7 +138,7 @@ export const Dashboard: React.FC = () => {
         {todayIndications.length > 0 && (
           <div className="space-y-2">
             <h3 className="text-sm font-medium text-muted-foreground">
-              Your indications today
+              Your indications today 📋
             </h3>
             <div className="space-y-2">
               {todayIndications.map((ind) => (

@@ -38,12 +38,12 @@ export const IndicationForm = forwardRef<HTMLDivElement, IndicationFormProps>(({
           <div className="text-center space-y-3">
             <CheckCircle2 className="w-12 h-12 text-green-600 mx-auto" />
             <h3 className="font-semibold text-lg text-green-700 dark:text-green-400">
-              Daily Indications Complete! 🎉
+              Omo, you try well well! 🎉🏆
             </h3>
             <p className="text-sm text-green-600 dark:text-green-500">
-              You don finish your 5 indications today. Well done!
+              You don finish your 5 indications today. Na correct citizen you be!
               <br />
-              Come back tomorrow to continue helping.
+              Come back tomorrow make you continue the hustle! 💪
             </p>
           </div>
         </CardContent>
@@ -56,35 +56,35 @@ export const IndicationForm = forwardRef<HTMLDivElement, IndicationFormProps>(({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Zap className="w-5 h-5 text-primary" />
-          Power Status Indication
+          Wetin Light Dey Do? ⚡
         </CardTitle>
         <CardDescription>
-          Submit your daily power status for your area
+          Yarn us wetin power dey do for your area 🏘️
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Progress */}
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Daily Progress</span>
+            <span className="text-muted-foreground">Today Progress 📈</span>
             <span className="font-medium">{todayCount}/{DAILY_LIMIT}</span>
           </div>
           <Progress value={progress} className="h-2" />
           <p className="text-xs text-muted-foreground">
-            {remaining} more indication{remaining !== 1 ? 's' : ''} needed to unlock complaints
+            {remaining} more indication{remaining !== 1 ? 's' : ''} remain before you fit report wahala 🗣️
           </p>
         </div>
 
         {/* Location Display */}
         {location ? (
           <div className="p-3 bg-muted rounded-lg">
-            <p className="text-sm text-muted-foreground">Your location:</p>
+            <p className="text-sm text-muted-foreground">Your location 📍:</p>
             <p className="font-medium">{location}</p>
           </div>
         ) : (
           <div className="p-3 bg-destructive/10 rounded-lg border border-destructive/20">
             <p className="text-sm text-destructive">
-              ⚠️ Please enter your location above before submitting
+              ⚠️ Abeg enter your location for up 👆 before you submit!
             </p>
           </div>
         )}
@@ -103,7 +103,7 @@ export const IndicationForm = forwardRef<HTMLDivElement, IndicationFormProps>(({
             ) : (
               <div className="flex flex-col items-center gap-1">
                 <Zap className="w-6 h-6" />
-                <span className="text-sm font-bold">Light Dey! ⚡</span>
+                <span className="text-sm font-bold">Light Dey! 💡⚡</span>
               </div>
             )}
           </Button>
@@ -120,7 +120,7 @@ export const IndicationForm = forwardRef<HTMLDivElement, IndicationFormProps>(({
             ) : (
               <div className="flex flex-col items-center gap-1">
                 <ZapOff className="w-6 h-6" />
-                <span className="text-sm font-bold">No Light! 🔌</span>
+                <span className="text-sm font-bold">No Light! 🌑😤</span>
               </div>
             )}
           </Button>

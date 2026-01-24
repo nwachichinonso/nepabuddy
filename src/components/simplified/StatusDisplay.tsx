@@ -36,10 +36,10 @@ export const StatusDisplay: React.FC = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Search className="w-5 h-5 text-primary" />
-          Check Power Status
+          Check Power Status 🔍
         </CardTitle>
         <CardDescription>
-          Search any location to see crowd-sourced power status
+          Search any location to see wetin light dey do for that area 🏘️
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -99,17 +99,17 @@ export const StatusDisplay: React.FC = () => {
                   <div className="p-3 bg-muted rounded-lg">
                     <Zap className="w-5 h-5 text-green-600 mx-auto mb-1" />
                     <p className="text-lg font-bold">{status.on_count}</p>
-                    <p className="text-xs text-muted-foreground">Light Dey</p>
+                    <p className="text-xs text-muted-foreground">Light Dey! ⚡</p>
                   </div>
                   <div className="p-3 bg-muted rounded-lg">
                     <ZapOff className="w-5 h-5 text-red-600 mx-auto mb-1" />
                     <p className="text-lg font-bold">{status.off_count}</p>
-                    <p className="text-xs text-muted-foreground">No Light</p>
+                    <p className="text-xs text-muted-foreground">No Light! 🌑</p>
                   </div>
                   <div className="p-3 bg-muted rounded-lg">
                     <RefreshCw className="w-5 h-5 text-blue-600 mx-auto mb-1" />
                     <p className="text-lg font-bold">{status.total_reports}</p>
-                    <p className="text-xs text-muted-foreground">Total</p>
+                    <p className="text-xs text-muted-foreground">Total Reports 📊</p>
                   </div>
                 </div>
 
@@ -123,19 +123,19 @@ export const StatusDisplay: React.FC = () => {
                 {complaintCount !== null && complaintCount > 0 && (
                   <div className="p-3 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg border border-yellow-200 dark:border-yellow-900">
                     <p className="text-sm text-yellow-700 dark:text-yellow-400">
-                      ⚠️ {complaintCount} complaint{complaintCount !== 1 ? 's' : ''} reported in this area (last 7 days)
+                      ⚠️😤 {complaintCount} wahala report{complaintCount !== 1 ? 's' : ''} for this area (last 7 days)
                     </p>
                   </div>
                 )}
               </>
             ) : (
               <div className="text-center py-6">
-                <div className="text-4xl mb-2">❓</div>
-                <h3 className="font-medium">No data found</h3>
+                <div className="text-4xl mb-2">🤔❓</div>
+                <h3 className="font-medium">No data dey for here o!</h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  No reports for "{searchTerm}" yet.
+                  Nobody don report for "{searchTerm}" yet.
                   <br />
-                  Be the first to submit an indication!
+                  Be the first person wey go submit indication! 🏆
                 </p>
               </div>
             )}

@@ -46,22 +46,22 @@ export const AuthForm: React.FC = () => {
           });
         } else {
           toast({
-            title: "Welcome to NEPA Buddy! 🎉",
-            description: "Account created successfully!",
+            title: "Welcome to NEPA Buddy! 🎉💡",
+            description: "E don work! Your account don ready. Make we start to dey track light!",
           });
         }
       } else {
         const { error } = await signIn(email.trim(), password);
         if (error) {
           toast({
-            title: "Login failed",
+            title: "Wahala! 😅",
             description: error.message,
             variant: "destructive",
           });
         } else {
           toast({
-            title: "Welcome back! ⚡",
-            description: "You don login successfully!",
+            title: "Welcome back! ⚡🔌",
+            description: "You don land! Time to check wetin light dey do.",
           });
         }
       }
@@ -77,11 +77,11 @@ export const AuthForm: React.FC = () => {
           <div className="mx-auto mb-4 w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
             <Zap className="w-8 h-8 text-primary" />
           </div>
-          <CardTitle className="text-2xl font-bold">NEPA Buddy</CardTitle>
+          <CardTitle className="text-2xl font-bold">NEPA Buddy 💡</CardTitle>
           <CardDescription>
             {isSignUp 
-              ? "Create account to start tracking power status" 
-              : "Login to continue tracking power"}
+              ? "Create account make you join the light tracking movement! 🇳🇬" 
+              : "Login make you continue to dey monitor light 🔌"}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -141,8 +141,8 @@ export const AuthForm: React.FC = () => {
               disabled={loading}
             >
               {isSignUp 
-                ? "Already have an account? Login" 
-                : "Don't have an account? Sign up"}
+                ? "You don get account already? Login here 👆" 
+                : "You never get account? Sign up now! ✨"}
             </button>
           </div>
         </CardContent>
