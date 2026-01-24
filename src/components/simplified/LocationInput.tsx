@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { MapPin, Save, X } from 'lucide-react';
@@ -12,14 +12,14 @@ interface LocationInputProps {
   disabled?: boolean;
 }
 
-export const LocationInput: React.FC<LocationInputProps> = ({
+export const LocationInput = forwardRef<HTMLDivElement, LocationInputProps>(({
   value,
   onChange,
   placeholder = "Enter your location (e.g., Sangotedo, Monastery Road)",
   showSaveButton = false,
   onSave,
   disabled = false,
-}) => {
+}, ref) => {
   const [localValue, setLocalValue] = useState(value);
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export const LocationInput: React.FC<LocationInputProps> = ({
   };
 
   return (
-    <div className="space-y-2">
+    <div ref={ref} className="space-y-2">
       <div className="relative">
         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
@@ -75,4 +75,6 @@ export const LocationInput: React.FC<LocationInputProps> = ({
       )}
     </div>
   );
-};
+});
+
+LocationInput.displayName = 'LocationInput';
