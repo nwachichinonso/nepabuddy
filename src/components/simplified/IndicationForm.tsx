@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -12,12 +12,12 @@ interface IndicationFormProps {
   onSuccess: () => void;
 }
 
-export const IndicationForm: React.FC<IndicationFormProps> = ({
+export const IndicationForm = forwardRef<HTMLDivElement, IndicationFormProps>(({
   userId,
   location,
   todayCount,
   onSuccess,
-}) => {
+}, ref) => {
   const { submitIndication, submitting, DAILY_LIMIT } = useIndications();
   
   const remaining = Math.max(0, DAILY_LIMIT - todayCount);
@@ -33,7 +33,7 @@ export const IndicationForm: React.FC<IndicationFormProps> = ({
 
   if (isComplete) {
     return (
-      <Card className="border-green-200 bg-green-50 dark:bg-green-950/20 dark:border-green-900">
+      <Card ref={ref} className="border-green-200 bg-green-50 dark:bg-green-950/20 dark:border-green-900">
         <CardContent className="pt-6">
           <div className="text-center space-y-3">
             <CheckCircle2 className="w-12 h-12 text-green-600 mx-auto" />
@@ -52,7 +52,7 @@ export const IndicationForm: React.FC<IndicationFormProps> = ({
   }
 
   return (
-    <Card>
+    <Card ref={ref}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Zap className="w-5 h-5 text-primary" />
@@ -128,4 +128,6 @@ export const IndicationForm: React.FC<IndicationFormProps> = ({
       </CardContent>
     </Card>
   );
-};
+});
+
+IndicationForm.displayName = 'IndicationForm';
