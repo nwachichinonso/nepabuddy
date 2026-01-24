@@ -38,11 +38,11 @@ export const ComplaintForm: React.FC<ComplaintFormProps> = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-muted-foreground">
             <Lock className="w-5 h-5" />
-            Complaint Submission
+            Wahala Report 🔒
           </CardTitle>
           <CardDescription className="flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-yellow-600" />
-            Complete your daily indications to unlock
+            Finish your daily indications first make you fit yarn 😤
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -50,7 +50,7 @@ export const ComplaintForm: React.FC<ComplaintFormProps> = ({
             <Lock className="w-12 h-12 text-muted-foreground mx-auto" />
             <p className="text-muted-foreground">
               Submit {remainingIndications} more indication{remainingIndications !== 1 ? 's' : ''} 
-              <br />to unlock complaint submission
+              <br />before you fit talk your own! 🗣️
             </p>
           </div>
         </CardContent>
@@ -63,10 +63,10 @@ export const ComplaintForm: React.FC<ComplaintFormProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <MessageSquare className="w-5 h-5 text-primary" />
-          Submit Complaint
+          Report Wahala! 📢
         </CardTitle>
         <CardDescription>
-          Report power issues in your area
+          Tell us wetin dey happen for your area 😤
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -74,7 +74,7 @@ export const ComplaintForm: React.FC<ComplaintFormProps> = ({
           {/* Location Display */}
           {location ? (
             <div className="p-3 bg-muted rounded-lg">
-              <p className="text-sm text-muted-foreground">Complaint for:</p>
+              <p className="text-sm text-muted-foreground">Wahala location 📍:</p>
               <p className="font-medium">{location}</p>
             </div>
           ) : (
@@ -87,7 +87,7 @@ export const ComplaintForm: React.FC<ComplaintFormProps> = ({
 
           {/* Complaint Types Hints */}
           <div className="flex flex-wrap gap-2">
-            {['Transformer blown', 'Low voltage', 'Frequent tripping', 'Meter issue'].map((hint) => (
+            {['Transformer don blow 💥', 'Voltage too low ⬇️', 'Light dey trip trip 🔄', 'Meter wahala 🔢'].map((hint) => (
               <button
                 key={hint}
                 type="button"
@@ -103,7 +103,7 @@ export const ComplaintForm: React.FC<ComplaintFormProps> = ({
           <Textarea
             value={complaintText}
             onChange={(e) => setComplaintText(e.target.value)}
-            placeholder="Describe the power issue... (e.g., No light for 3 days, transformer don blow)"
+            placeholder="Yarn wetin dey happen... (e.g., No light for 3 days, transformer don blow, voltage too low) 💬"
             rows={4}
             disabled={submitting}
             maxLength={500}
@@ -121,12 +121,12 @@ export const ComplaintForm: React.FC<ComplaintFormProps> = ({
             {submitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Submitting...
+                E dey submit...
               </>
             ) : (
               <>
                 <MessageSquare className="mr-2 h-4 w-4" />
-                Submit Complaint
+                Submit Wahala 📢
               </>
             )}
           </Button>

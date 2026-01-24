@@ -70,28 +70,28 @@ export const useLocationStatus = () => {
 
   const getStatusText = (status: LocationStatus | null): { text: string; emoji: string; color: string } => {
     if (!status) {
-      return { text: 'No data available', emoji: '❓', color: 'text-muted-foreground' };
+      return { text: 'No data dey o!', emoji: '🤔❓', color: 'text-muted-foreground' };
     }
 
     const total = status.on_count + status.off_count;
     if (total === 0) {
-      return { text: 'No data available', emoji: '❓', color: 'text-muted-foreground' };
+      return { text: 'Nobody don report yet', emoji: '🤷', color: 'text-muted-foreground' };
     }
 
     const onRatio = status.on_count / total;
     
     if (onRatio >= 0.7) {
-      return { text: 'Power is ON', emoji: '⚡', color: 'text-green-600' };
+      return { text: 'Light dey! ⚡', emoji: '💡🎉', color: 'text-green-600' };
     } else if (onRatio <= 0.3) {
-      return { text: 'Power is OFF', emoji: '🔌', color: 'text-red-600' };
+      return { text: 'No light wahala! 😤', emoji: '🌑🔌', color: 'text-red-600' };
     } else {
-      return { text: 'Recovering', emoji: '🔄', color: 'text-yellow-600' };
+      return { text: 'E dey try come back', emoji: '🔄💛', color: 'text-yellow-600' };
     }
   };
 
   const getConfidenceText = (status: LocationStatus | null): string => {
     if (!status || status.total_reports === 0) {
-      return 'No reports yet';
+      return 'Nobody don report for here yet 🤷';
     }
 
     // Check recent reports (last 10 minutes simulation)
@@ -99,10 +99,10 @@ export const useLocationStatus = () => {
     const minutesAgo = Math.floor((Date.now() - lastUpdated.getTime()) / 60000);
 
     if (minutesAgo > 60) {
-      return `Based on ${status.total_reports} reports (last update: ${minutesAgo > 1440 ? Math.floor(minutesAgo / 1440) + ' days' : Math.floor(minutesAgo / 60) + ' hours'} ago)`;
+      return `Based on ${status.total_reports} reports (last gist: ${minutesAgo > 1440 ? Math.floor(minutesAgo / 1440) + ' days' : Math.floor(minutesAgo / 60) + ' hours'} ago) 📊`;
     }
 
-    return `Based on ${status.total_reports} reports (updated ${minutesAgo} min ago)`;
+    return `Based on ${status.total_reports} reports (updated ${minutesAgo} min ago) 🔥`;
   };
 
   return {

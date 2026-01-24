@@ -49,8 +49,8 @@ export const useIndications = () => {
   ) => {
     if (!locationString.trim()) {
       toast({
-        title: "Location needed",
-        description: "Abeg enter your location first!",
+        title: "Oya wait! 📍",
+        description: "Abeg enter your location first before you submit!",
         variant: "destructive"
       });
       return false;
@@ -72,8 +72,8 @@ export const useIndications = () => {
 
       if ((count || 0) >= DAILY_LIMIT) {
         toast({
-          title: "Daily limit reached! 🎉",
-          description: "You don submit your 5 indications today. Well done!",
+          title: "Omo! You don finish today! 🎉🏆",
+          description: "Your 5 indications don complete. Rest well, come back tomorrow! 💪",
         });
         return false;
       }
@@ -99,8 +99,8 @@ export const useIndications = () => {
         .eq('user_id', userId);
 
       toast({
-        title: status ? "⚡ Light dey!" : "🔌 No light!",
-        description: `Indication ${(count || 0) + 1}/${DAILY_LIMIT} submitted. ${DAILY_LIMIT - (count || 0) - 1} more to go!`,
+        title: status ? "⚡💡 Light dey!" : "🌑🔌 No light wahala!",
+        description: `Indication ${(count || 0) + 1}/${DAILY_LIMIT} don enter. ${DAILY_LIMIT - (count || 0) - 1} more to go! 💪`,
       });
 
       await fetchTodayIndications(userId);
@@ -108,8 +108,8 @@ export const useIndications = () => {
     } catch (err) {
       console.error('Error submitting indication:', err);
       toast({
-        title: "Error!",
-        description: "E no work o! Try again.",
+        title: "Wahala dey! 😅",
+        description: "E no work o! Abeg try again. 🔄",
         variant: "destructive"
       });
       return false;
